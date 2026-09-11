@@ -1,0 +1,72 @@
+# Scheduled form health check across every live client site.
+#
+# Catches the silent failure: a form that stops saving sends no error and no notification, so
+# nothing tells anyone until the client asks why the phone stopped ringing.
+#
+# On failure this opens (or updates) a GitHub issue labelled `site-health`, which the
+# daily-ops-digest skill reads, so the alert reaches Daniel through a channel he already checks.
+name: Site health
+
+on:
+  schedule:
+    - cron: "0 7 * * *"   # 07:00 UTC daily
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run form health check
+        id: check
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          set +e
+          node form-health.mjs > health.log 2>&1
+          echo "exit=$?" >> $GITHUB_OUTPUT
+          cat health.log
+
+      - name: Raise or update an issue on failure
+        if: steps.check.outputs.exit != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BODY="$(cat health.log)"
+          EXISTING=$(gh issue list --label site-health --state open --limit 1 --json number --jq '.[0].number')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body "Still failing on $(date -u +%Y-%m-%d).
+
+\`\`\`
+$BODY
+\`\`\`"
+          else
+            gh issue create \
+              --title "Site health check failing" \
+              --label site-health \
+              --body "The scheduled form health check failed. A form that stops saving is silent, so this may already be costing live leads.
+
+\`\`\`
+$BODY
+\`\`\`"
+          fi
+
+      - name: Close the issue when healthy again
+        if: steps.check.outputs.exit == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXISTING=$(gh issue list --label site-health --state open --limit 1 --json number --jq '.[0].number')
+          if [ -n "$EXISTING" ]; then
+            gh issue close "$EXISTING" --comment "Health check passing again as of $(date -u +%Y-%m-%d)."
+          fi

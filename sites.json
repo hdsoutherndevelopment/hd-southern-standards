@@ -1,0 +1,46 @@
+{
+  "_readme": "Registry of live client sites for automated health checks. Add every site you launch. A site that is not listed here is not being monitored, and nothing will tell you when its form breaks.",
+  "_fields": {
+    "name": "Human name, used in alerts.",
+    "url": "Live site origin, no trailing slash.",
+    "enabled": "Set false to skip without deleting the entry.",
+    "form.endpoint": "Path or absolute URL the form POSTs to. Leave null until known: the submission test is then skipped and reported as skipped, never as passing.",
+    "form.payload": "A valid minimal submission for this form. Fields must satisfy the endpoint's validation or the test will fail for the wrong reason.",
+    "supabase.table": "Table the enquiry should land in. Enables storage verification and the freshness check."
+  },
+  "sites": [
+    {
+      "name": "Second Chance Mobile Car Care",
+      "url": null,
+      "enabled": true,
+      "form": {
+        "endpoint": null,
+        "method": "POST",
+        "payload": { "name": "HD Health Check", "phone": "07000 000000", "email": "hdsoutherndevelopment@gmail.com" }
+      },
+      "supabase": { "table": "secondchance_enquiries" }
+    },
+    {
+      "name": "Oven Busters",
+      "url": null,
+      "enabled": true,
+      "form": {
+        "endpoint": null,
+        "method": "POST",
+        "payload": { "name": "HD Health Check", "phone": "07000 000000", "email": "hdsoutherndevelopment@gmail.com" }
+      },
+      "supabase": { "table": "ovenbusters_enquiries" }
+    },
+    {
+      "name": "Sunny Side Pups",
+      "url": null,
+      "enabled": true,
+      "form": {
+        "endpoint": null,
+        "method": "POST",
+        "payload": { "name": "HD Health Check", "phone": "07000 000000", "email": "hdsoutherndevelopment@gmail.com" }
+      },
+      "supabase": { "table": "sunnysidepups_enquiries" }
+    }
+  ]
+}

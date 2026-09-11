@@ -1,0 +1,45 @@
+# Runs the build standard audit on every push and pull request.
+#
+# This is the enforcement point that works regardless of which tool wrote the code: whether the
+# site was built by Claude, Cursor, v0, another model or by hand, it does not merge until it
+# passes. Copy this file into every website repository.
+name: Build standard audit
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install
+        run: npm ci || npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Fetch the auditor
+        run: |
+          curl -fsSL -o audit.mjs \
+            https://raw.githubusercontent.com/hdsoutherndevelopment/hd-southern-standards/main/audit.mjs
+
+      - name: Start the site
+        run: |
+          npm run start &
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null http://127.0.0.1:3000/ && break
+            sleep 2
+          done
+
+      # MODE: use --demo for cold-outreach demos, --live for a launched client site.
+      # Leave it off for a pre-launch build.
+      - name: Audit
+        run: node audit.mjs --url http://127.0.0.1:3000 --demo
