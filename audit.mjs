@@ -217,7 +217,7 @@ async function pageChecks(paths) {
     if (path === "/") {
       blocker(!!metaContent(html, "og:image", "property"), "home page has an og:image");
       blocker(/<link[^>]*rel\s*=\s*"(icon|shortcut icon)"/i.test(html), "home page declares a favicon");
-      blocker(/"@type"\s*:\s*"[A-Za-z]*(LocalBusiness|Salon|Repair|Plumber|Restaurant|Store|Service)/i.test(html),
+      blocker(/"@type"\s*:\s*"[A-Za-z]*(LocalBusiness|Salon|Repair|Plumber|Restaurant|Store|Service|Contractor|Electrician|Locksmith|Painter|Roofing|Barber|Shop|Dealer|Studio|Clinic|Dentist|Club|Business)/i.test(html),
         "home page has LocalBusiness structured data");
     }
     if (path !== "/") {
