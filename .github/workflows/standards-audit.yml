@@ -12,6 +12,8 @@ on:
 
 jobs:
   audit:
+    # This repo only stores the template; it has no site to build, so the job runs in website repos only.
+    if: github.repository != 'hdsoutherndevelopment/hd-southern-standards'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
