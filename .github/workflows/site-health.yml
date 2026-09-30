@@ -41,24 +41,16 @@ jobs:
         if: steps.check.outputs.exit != '0'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # The message is written line by line into a file: multi-line text at column 0
+        # inside a run block ends the YAML block early and GitHub rejects the whole file.
         run: |
-          BODY="$(cat health.log)"
           EXISTING=$(gh issue list --label site-health --state open --limit 1 --json number --jq '.[0].number')
           if [ -n "$EXISTING" ]; then
-            gh issue comment "$EXISTING" --body "Still failing on $(date -u +%Y-%m-%d).
-
-\`\`\`
-$BODY
-\`\`\`"
+            { echo "Still failing on $(date -u +%Y-%m-%d)."; echo; echo '```'; cat health.log; echo '```'; } > message.md
+            gh issue comment "$EXISTING" --body-file message.md
           else
-            gh issue create \
-              --title "Site health check failing" \
-              --label site-health \
-              --body "The scheduled form health check failed. A form that stops saving is silent, so this may already be costing live leads.
-
-\`\`\`
-$BODY
-\`\`\`"
+            { echo "The scheduled form health check failed. A form that stops saving is silent, so this may already be costing live leads."; echo; echo '```'; cat health.log; echo '```'; } > message.md
+            gh issue create --title "Site health check failing" --label site-health --body-file message.md
           fi
 
       - name: Close the issue when healthy again
