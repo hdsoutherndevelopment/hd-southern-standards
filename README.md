@@ -59,4 +59,4 @@ Deliberately honest about its limits. A green run does **not** cover:
 - Image rights and licensing
 - Whether the content is actually true
 
-Those stay human checks. See the pre-launch checklist in `AGENTS.md` (standard, section 16).
+See `AGENTS.md`: Accessibility (contrast, keyboard, screen reader), Build quality (console errors, Core Web Vitals) and Never do these (truthful content). Image rights are not covered there yet, so check them by hand.

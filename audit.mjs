@@ -254,7 +254,7 @@ console.log(`${passed} passed, ${blockers.length} blocking failures, ${warns.len
 console.log(
   "\nNot covered by this script and still required: colour contrast, keyboard pass,\n" +
   "screen reader pass, console errors, Core Web Vitals, image rights, and whether the\n" +
-  "content is actually true. See the standard, section 16.\n",
+  "content is actually true. See AGENTS.md: Accessibility, Build quality, Never do these.\n",
 );
 
 process.exit(blockers.length ? 1 : 0);
